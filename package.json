@@ -1,12 +1,13 @@
 {
-  "name": "hono-app",
-  "version": "1.6.0",
-  "description": "hono-app by cloudflare",
+  "name": "alist-hono",
+  "version": "0.0.1",
+  "description": "use Hono and cloudflare to deploy alist",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Portkey-AI/gateway.git"
+    "url": "git+https://github.com/sternelee/alist-hono.git"
   },
   "keywords": [
+    "alist",
     "hono",
     "cloudflare",
     "auth"
@@ -25,8 +26,8 @@
     "format": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\"",
     "format:check": "prettier --check \"./**/*.{js,jsx,ts,tsx,json}\"",
     "generate": "drizzle-kit generate --dialect=sqlite --schema=./src/db/schema --out=./migrations",
-    "up": "wrangler d1 migrations apply hono_app --local",
-    "up:prod": "wrangler d1 migrations apply hono_app",
+    "up": "wrangler d1 migrations apply alist --local",
+    "up:prod": "wrangler d1 migrations apply alist",
     "deploy": "wrangler deploy --minify src/index.ts",
     "test": "ts-jest"
   },

@@ -1,4 +1,4 @@
-name = "hono"
+name = "alist"
 compatibility_date = "2023-01-01"
 main = "src/index.ts"
 node_compat = true
@@ -12,7 +12,7 @@ crons = ["*/3 * * * *"]
 
 [[d1_databases]]
 binding = "D1DATA"
-database_name = "hono_app"
+database_name = "alist"
 database_id = "xxxxxxx"
 
 [vars]
@@ -23,7 +23,7 @@ CUSTOM_HEADERS_TO_IGNORE = []
 #Configuration for DEVELOPMENT environment
 #
 [env.staging]
-name = "hono-dev"
+name = "alist-dev"
 
 [env.staging.vars]
 ENVIRONMENT = 'staging'
@@ -34,7 +34,7 @@ CUSTOM_HEADERS_TO_IGNORE = []
 #Configuration for PRODUCTION environment
 #
 [env.production]
-name = "hono"
+name = "alist"
 logpush=true
 
 [env.production.vars]

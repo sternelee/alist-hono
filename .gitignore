@@ -136,6 +136,7 @@ build
 
 # Wrangler temp directory
 .wrangler
+wrangler.toml
 
 # IntelliJ Idea
 .idea
