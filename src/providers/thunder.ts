@@ -3,11 +3,11 @@ import qs from 'qs';
 
 const API_URL = 'https://api-pan.xunlei.com/drive/v1';
 const FILE_API_URL = API_URL + '/files';
-const XLUSER_API_URL = 'https://xluser-ssl.xunlei.com/v1';
+const USER_API_URL = 'https://xluser-ssl.xunlei.com/v1';
 const FOLDER = 'drive#folder';
 const FILE = 'drive#file';
 const UPLOAD_TYPE_URL = 'UPLOAD_TYPE_URL';
-export const ROUTER = 'thunder';
+export const THUNDER = 'thunder';
 
 interface ErrResp {
   error_code: number;
@@ -221,13 +221,13 @@ const refreshCaptchaToken = async (
     meta,
     redirect_uri: 'xlaccsdk01://xunlei.com/callback?state=harbor',
   };
-  const resp: CaptchaTokenResponse = await fetch(
-    XLUSER_API_URL + '/shield/captcha/init',
+  const resp = await fetch(
+    USER_API_URL + '/shield/captcha/init',
     {
       method: 'POST',
       body: JSON.stringify(body),
     }
-  ).then((res) => res.json());
+  ).then((res) => res.json()) as CaptchaTokenResponse;
   console.log('refreshCaptchaToken:', resp);
   if (resp.captcha_token === '') {
     console.log('empty captchaToken');
@@ -240,7 +240,7 @@ export const login = async (
   params: Pick<SignInRequest, 'username' | 'password'>
 ) => {
   const { username, password } = params;
-  const url = XLUSER_API_URL + '/auth/signin';
+  const url = USER_API_URL + '/auth/signin';
   const captcha_token = await refreshCaptchaTokenInLogin({
     username,
     action: getAction('POST', url),
@@ -258,7 +258,6 @@ export const login = async (
       method: 'POST',
       body: JSON.stringify(body),
     }).then((res) => res.json());
-    console.log('login:', resp);
     return {
       login: resp,
       captcha_token,
@@ -269,7 +268,7 @@ export const login = async (
 };
 
 const refreshToken = async (refresh_token: string): Promise<TokenResp> => {
-  return await fetch(XLUSER_API_URL + '/auth/token', {
+  return await fetch(USER_API_URL + '/auth/token', {
     headers: Headers,
     body: JSON.stringify({
       grant_type: 'refresh_token',
@@ -277,7 +276,7 @@ const refreshToken = async (refresh_token: string): Promise<TokenResp> => {
       client_id: Config.clientID,
       client_secret: Config.clientSecret,
     }),
-  }).then((res) => res.json());
+  }).then((res) => res.json()) as TokenResp;
 };
 
 const baseRequest = async (
@@ -332,7 +331,6 @@ const baseRequest = async (
     }
     if (err.error_code === 9) {
       // 验证码token过期
-      getAction(method, url), login.user_id, captcha_token;
       captcha_token = await refreshCaptchaTokenAtLogin({
         action: getAction(method, url),
         user_id: login.user_id,
@@ -357,7 +355,7 @@ const baseRequest = async (
 // 列表
 export const list = async (
   kv: KVNamespace,
-  kvKey,
+  kvKey: string,
   cache: IKVData,
   params: any = {}
 ) => {
@@ -389,12 +387,16 @@ export const list = async (
 // 云添加
 export const save = async (
   kv: KVNamespace,
-  kvKey: string,
-  cache: IKVData,
-  name: string,
-  url: string,
-  parent_id: string
+  userId: string,
+  params: {
+    name: string,
+    url: string,
+    parent_id: string
+  }
 ) => {
+  const { name, url, parent_id } = params;
+  const kvKey = `${userId}_${THUNDER}`;
+  const cache = (await kv.get(kvKey, 'json') as IKVData) || {};
   const resp = await baseRequest(kv, kvKey, cache, FILE_API_URL, 'POST', {
     kind: FILE,
     name,
