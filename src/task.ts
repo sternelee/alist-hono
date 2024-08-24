@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import { decode } from './utils/bencode';
 import { insertD1Data, updateD1Data } from './db/d1-data';
 import { Bindings } from './bindings';
 import { savePan } from './drivers';
 import { ILink } from './drivers/_types';
+import { fetchFeed, fetchBt } from './utils/extract';
 
 export const fetchFeeds = async (env: Bindings) => {
   const { results: feeds } = await env.D1DATA.prepare(
@@ -62,46 +62,3 @@ export const fetchLinks = async (env: Bindings) => {
     console.log(res);
   }
 };
-
-export const fetchFeed = async (link: string) => {
-  const text = await fetch(link).then((res) => res.text());
-  const { titles, enclosureUrls } = extractRSSInfo(text);
-  const links: { title: string; link: string }[] = [];
-  for (let i = 0; i < titles.length; i++) {
-    const link = enclosureUrls[i];
-    links.push({
-      title: titles[i],
-      link,
-    });
-  }
-  return links;
-};
-
-export const fetchBt = async (link: string) => {
-  const btFile = await fetch(link).then((res) => res.arrayBuffer());
-  const base64 = decode(btFile);
-  return 'magnet:?xt=urn:btih:' + base64;
-};
-
-function extractRSSInfo(rssContent: string) {
-  const titles = [];
-  const enclosureUrls = [];
-
-  // 提取title
-  const titleRegex = /<item>\s*<title>(.*?)<\/title>/g;
-  let titleMatch;
-  while ((titleMatch = titleRegex.exec(rssContent)) !== null) {
-    // @ts-ignore
-    titles.push(titleMatch[1]);
-  }
-
-  // 提取enclosure URL
-  const enclosureRegex = /<enclosure url="(.*?)"/g;
-  let enclosureMatch;
-  while ((enclosureMatch = enclosureRegex.exec(rssContent)) !== null) {
-    // @ts-ignore
-    enclosureUrls.push(enclosureMatch[1]);
-  }
-
-  return { titles, enclosureUrls };
-}

@@ -46,7 +46,7 @@ export const relation = relations(table, ({ one, many }) => ({
 export const access: ApiConfig['access'] = {
   operation: {
     read: true,
-    create: isAdminOrEditor,
+    create: true, // 起过20条普通用户不允许
   },
   filter: {
     // if a user tries to update a feed and isn't the user that created the feed the update won't happen

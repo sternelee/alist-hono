@@ -17,6 +17,7 @@ import {
   getOperationCreateResult,
 } from '../db/auth-helpers';
 import { login } from '../drivers';
+import { fetchFeed } from '../utils/extract';
 
 const apiRoute = new Hono<AppContextEnv>();
 
@@ -102,7 +103,6 @@ tables.forEach((entry) => {
 
       return ctx.json({ ...data, executionTime });
     } catch (error) {
-      console.log(error);
       return ctx.text(error as unknown as string);
     }
   });
@@ -219,7 +219,6 @@ tables.forEach((entry) => {
       // @ts-ignore
       return ctx.json(result?.data, 201);
     } catch (error) {
-      console.log('error posting content', error);
       return ctx.text(error as unknown as string, 500);
     }
   });
@@ -281,7 +280,6 @@ tables.forEach((entry) => {
       }
       return ctx.json(result.data, 200);
     } catch (error) {
-      console.log('error updating content', error);
       return ctx.text(error as unknown as string, 500);
     }
   });
@@ -326,10 +324,8 @@ tables.forEach((entry) => {
       if (entry?.hooks?.afterOperation) {
         await entry.hooks.afterOperation(ctx, 'delete', id, record, result);
       }
-      console.log('returning 204');
       return ctx.text('', 204);
     } else {
-      console.log('content not found');
       return ctx.text('', 404);
     }
   });
@@ -345,6 +341,12 @@ apiRoute.post('/login/:driver', async (ctx) => {
   const content = await ctx.req.json();
   const resp = await login(ctx.env.KVDATA, { ...content, userId, driver });
   return ctx.json(resp);
+});
+
+apiRoute.post('/fetch', async (ctx) => {
+  const { url } = await ctx.req.json();
+  const links = await fetchFeed(url);
+  return ctx.json(links);
 });
 
 export { apiRoute };
