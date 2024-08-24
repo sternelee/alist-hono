@@ -12,7 +12,7 @@ async function handleSchedule(
    */
   if (cron === '* */6 * * *') {
     console.log('cron triggered!');
-    return new Response(null, { status: 200 })
+    return new Response(null, { status: 200 });
   }
   console.log('no event triggered');
   return new Response(null, {

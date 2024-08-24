@@ -26,12 +26,12 @@ export const table = sqliteTable(
   tableName,
   {
     ...definition,
-    ...auditSchema
+    ...auditSchema,
   },
   (table) => {
     return {
       userIdIndex: index('linkUserIdIndex').on(table.userId),
-      feedIdIndex: index('linkPostIdIndex').on(table.feedId)
+      feedIdIndex: index('linkPostIdIndex').on(table.feedId),
     };
   }
 );
@@ -39,12 +39,12 @@ export const table = sqliteTable(
 export const relation = relations(table, ({ one }) => ({
   post: one(feeds.table, {
     fields: [table.feedId],
-    references: [feeds.table.id]
+    references: [feeds.table.id],
   }),
   user: one(users.table, {
     fields: [table.userId],
-    references: [users.table.id]
-  })
+    references: [users.table.id],
+  }),
 }));
 
 export const access: ApiConfig['access'] = {
@@ -52,8 +52,8 @@ export const access: ApiConfig['access'] = {
     read: true,
     create: true,
     update: isAdminOrUser,
-    delete: isAdminOrUser
-  }
+    delete: isAdminOrUser,
+  },
 };
 
 export const hooks: ApiConfig['hooks'] = {
@@ -69,7 +69,7 @@ export const hooks: ApiConfig['hooks'] = {
         data.userId = ctx.get('user').userId;
       }
       return data;
-    }
-  }
+    },
+  },
 };
 export const fields: ApiConfig['fields'] = {};

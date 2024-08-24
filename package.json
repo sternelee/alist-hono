@@ -9,16 +9,13 @@
   "keywords": [
     "alist",
     "hono",
-    "cloudflare",
-    "auth"
+    "cloudflare"
   ],
   "author": "sternelee <sternelee@gmail.com>",
   "license": "MIT",
   "files": [
     "README.md",
-    "SECURITY.md",
-    "LICENSE",
-    "docs"
+    "LICENSE"
   ],
   "scripts": {
     "dev": "wrangler dev src/index.ts",

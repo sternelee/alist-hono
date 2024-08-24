@@ -221,13 +221,10 @@ const refreshCaptchaToken = async (
     meta,
     redirect_uri: 'xlaccsdk01://xunlei.com/callback?state=harbor',
   };
-  const resp = await fetch(
-    USER_API_URL + '/shield/captcha/init',
-    {
-      method: 'POST',
-      body: JSON.stringify(body),
-    }
-  ).then((res) => res.json()) as CaptchaTokenResponse;
+  const resp = (await fetch(USER_API_URL + '/shield/captcha/init', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  }).then((res) => res.json())) as CaptchaTokenResponse;
   console.log('refreshCaptchaToken:', resp);
   if (resp.captcha_token === '') {
     console.log('empty captchaToken');
@@ -268,7 +265,7 @@ export const login = async (
 };
 
 const refreshToken = async (refresh_token: string): Promise<TokenResp> => {
-  return await fetch(USER_API_URL + '/auth/token', {
+  return (await fetch(USER_API_URL + '/auth/token', {
     headers: Headers,
     body: JSON.stringify({
       grant_type: 'refresh_token',
@@ -276,7 +273,7 @@ const refreshToken = async (refresh_token: string): Promise<TokenResp> => {
       client_id: Config.clientID,
       client_secret: Config.clientSecret,
     }),
-  }).then((res) => res.json()) as TokenResp;
+  }).then((res) => res.json())) as TokenResp;
 };
 
 const baseRequest = async (
@@ -389,14 +386,14 @@ export const save = async (
   kv: KVNamespace,
   userId: string,
   params: {
-    name: string,
-    url: string,
-    parent_id: string
+    name: string;
+    url: string;
+    parent_id: string;
   }
 ) => {
   const { name, url, parent_id } = params;
   const kvKey = `${userId}_${THUNDER}`;
-  const cache = (await kv.get(kvKey, 'json') as IKVData) || {};
+  const cache = ((await kv.get(kvKey, 'json')) as IKVData) || {};
   const resp = await baseRequest(kv, kvKey, cache, FILE_API_URL, 'POST', {
     kind: FILE,
     name,

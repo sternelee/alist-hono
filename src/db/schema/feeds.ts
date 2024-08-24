@@ -26,11 +26,11 @@ export const table = sqliteTable(
   tableName,
   {
     ...definition,
-    ...auditSchema
+    ...auditSchema,
   },
   (table) => {
     return {
-      userIdIndex: index('feedUserIdIndex').on(table.userId)
+      userIdIndex: index('feedUserIdIndex').on(table.userId),
     };
   }
 );
@@ -38,15 +38,15 @@ export const table = sqliteTable(
 export const relation = relations(table, ({ one, many }) => ({
   user: one(users.table, {
     fields: [table.userId],
-    references: [users.table.id]
+    references: [users.table.id],
   }),
-  links: many(links.table)
+  links: many(links.table),
 }));
 
 export const access: ApiConfig['access'] = {
   operation: {
     read: true,
-    create: isAdminOrEditor
+    create: isAdminOrEditor,
   },
   filter: {
     // if a user tries to update a feed and isn't the user that created the feed the update won't happen
@@ -58,7 +58,7 @@ export const access: ApiConfig['access'] = {
         if (user?.userId) {
           // Return filter so update doesn't happen if userId doesn't match
           return {
-            userId: user.userId
+            userId: user.userId,
           };
         } else {
           return false;
@@ -73,29 +73,29 @@ export const access: ApiConfig['access'] = {
         if (user?.userId) {
           // Return filter so update doesn't happen if userId doesn't match
           return {
-            userId: user.userId
+            userId: user.userId,
           };
         } else {
           return false;
         }
       }
-    }
+    },
   },
   fields: {
     userId: {
-      update: false
-    }
-  }
+      update: false,
+    },
+  },
 };
 export const hooks: ApiConfig['hooks'] = {
   beforeOperation: (ctx, operation, _, data) => {
     if (operation === 'read') {
       if (data && ctx.get('user')?.userId) {
         data.filters = {
-          'userId': {
-            '$eq': ctx.get('user').userId,
-          }
-        }
+          userId: {
+            $eq: ctx.get('user').userId,
+          },
+        };
       }
     }
   },
@@ -111,7 +111,7 @@ export const hooks: ApiConfig['hooks'] = {
         data.userId = ctx.get('user').userId;
       }
       return data;
-    }
-  }
+    },
+  },
 };
 export const fields: ApiConfig['fields'] = {};

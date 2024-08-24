@@ -12,8 +12,8 @@ export interface ILink {
 
 export interface ISaveBody {
   userId: string;
-  driver: string,
-  url: string,
-  title: string,
-  folderId: string
+  driver: string;
+  url: string;
+  title: string;
+  folderId: string;
 }

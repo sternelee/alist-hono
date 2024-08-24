@@ -16,6 +16,7 @@ import {
   getItemReadResult,
   getOperationCreateResult,
 } from '../db/auth-helpers';
+import { login } from '../drivers';
 
 const apiRoute = new Hono<AppContextEnv>();
 
@@ -336,6 +337,14 @@ tables.forEach((entry) => {
 
 apiRoute.get('/ping', (ctx) => {
   return ctx.json(`${ctx.req.path} is all good`);
+});
+
+apiRoute.post('/login/:driver', async (ctx) => {
+  const { userId } = ctx.get('user');
+  const driver = ctx.req.param('driver');
+  const content = await ctx.req.json();
+  const resp = await login(ctx.env.KVDATA, { ...content, userId, driver });
+  return ctx.json(resp);
 });
 
 export { apiRoute };

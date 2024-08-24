@@ -53,9 +53,7 @@
       "indexes": {
         "driverUserIdIndex": {
           "name": "driverUserIdIndex",
-          "columns": [
-            "userId"
-          ],
+          "columns": ["userId"],
           "isUnique": false
         }
       },
@@ -140,9 +138,7 @@
       "indexes": {
         "feedUserIdIndex": {
           "name": "feedUserIdIndex",
-          "columns": [
-            "userId"
-          ],
+          "columns": ["userId"],
           "isUnique": false
         }
       },
@@ -234,16 +230,12 @@
       "indexes": {
         "linkUserIdIndex": {
           "name": "linkUserIdIndex",
-          "columns": [
-            "userId"
-          ],
+          "columns": ["userId"],
           "isUnique": false
         },
         "linkPostIdIndex": {
           "name": "linkPostIdIndex",
-          "columns": [
-            "feedId"
-          ],
+          "columns": ["feedId"],
           "isUnique": false
         }
       },
@@ -296,12 +288,8 @@
           "name": "user_keys_user_id_users_id_fk",
           "tableFrom": "user_keys",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -361,12 +349,8 @@
           "name": "user_sessions_user_id_users_id_fk",
           "tableFrom": "user_sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
