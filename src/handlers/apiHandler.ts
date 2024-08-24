@@ -329,7 +329,7 @@ apiRoute.get('/ping', (ctx) => {
   return ctx.json(`${ctx.req.path} is all good`);
 });
 
-apiRoute.post('/login/:driver', async (ctx) => {
+apiRoute.post('/driver/:driver', async (ctx) => {
   const { userId } = ctx.get('user');
   const driver = ctx.req.param('driver');
   const content = await ctx.req.json();
