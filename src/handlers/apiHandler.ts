@@ -177,15 +177,13 @@ tables.forEach((entry) => {
   //TODO: support batch inserts
   apiRoute.post(`/${entry.route}`, async (ctx) => {
     let content = await ctx.req.json();
-    const route = ctx.req.path.split('/')[2];
-    const table = apiConfig.find((entry) => entry.route === route)?.table;
     ctx.env.D1DATA = ctx.env.D1DATA;
 
     if (entry.hooks?.beforeOperation) {
       await entry.hooks.beforeOperation(ctx, 'create', undefined, content);
     }
 
-    content.table = table;
+    content.table = entry.route;
 
     let authorized = await getOperationCreateResult(
       entry?.access?.operation?.create,
@@ -254,10 +252,7 @@ tables.forEach((entry) => {
       return ctx.text('Unauthorized', 401);
     }
 
-    const route = ctx.req.path.split('/')[2];
-    const table = apiConfig.find((entry) => entry.route === route)?.table;
-
-    content.table = table;
+    content.table = entry.table;
     content.id = id;
 
     try {
@@ -287,7 +282,6 @@ tables.forEach((entry) => {
   //delete
   apiRoute.delete(`/${entry.route}/:id`, async (ctx) => {
     const id = ctx.req.param('id');
-    const table = ctx.req.path.split('/')[2];
     ctx.env.D1DATA = ctx.env.D1DATA;
 
     if (entry.hooks?.beforeOperation) {
@@ -314,12 +308,12 @@ tables.forEach((entry) => {
     }
     params.id = id;
 
-    const record = await getRecords(ctx, table, params);
+    const record = await getRecords(ctx, entry.table, params);
 
     if (record) {
       const result = await deleteRecord(ctx.env.D1DATA, {
         id,
-        table: table,
+        table: entry.table,
       });
       if (entry?.hooks?.afterOperation) {
         await entry.hooks.afterOperation(ctx, 'delete', id, record, result);
