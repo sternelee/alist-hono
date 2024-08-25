@@ -1,5 +1,6 @@
 import app from './server';
 import { Bindings } from './bindings';
+import { fetchFeeds, fetchLinks } from './task';
 
 async function handleSchedule(
   event: ScheduledEvent,
@@ -10,8 +11,10 @@ async function handleSchedule(
   /*
    * Handling specific event to trigger for a CRON trigger
    */
-  if (cron === '* */6 * * *') {
+  if (cron === '0 */6 * * *') {
     console.log('cron triggered!');
+    await fetchFeeds(env);
+    await fetchLinks(env);
     return new Response(null, { status: 200 });
   }
   console.log('no event triggered');
