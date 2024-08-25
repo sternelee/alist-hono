@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "068d3df5-9767-4ec7-a4ac-a353791fbfc3",
+  "id": "a775a7cd-0549-4e17-b721-f63934256119",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "drivers": {
@@ -92,6 +92,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "wxUid": {
+          "name": "wxUid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "driver": {
           "name": "driver",
           "type": "text",
@@ -173,6 +180,13 @@
         "feedId": {
           "name": "feedId",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "wxUid": {
+          "name": "wxUid",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -384,6 +398,13 @@
         },
         "password": {
           "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "wxUid": {
+          "name": "wxUid",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

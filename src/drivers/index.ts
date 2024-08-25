@@ -17,7 +17,10 @@ export async function login(kv: KVNamespace, content) {
   }
 }
 
-export async function savePan(kv: KVNamespace, params: ISaveBody) {
+export async function savePan(
+  kv: KVNamespace,
+  params: ISaveBody
+): Promise<any> {
   const { driver, userId, title, url, folderId } = params;
   if (driver === THUNDER) {
     const res = await thunderSave(kv, userId, {

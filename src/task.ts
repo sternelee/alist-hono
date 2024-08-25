@@ -4,13 +4,14 @@ import { Bindings } from './bindings';
 import { savePan } from './drivers';
 import { ILink } from './drivers/_types';
 import { fetchFeed, fetchBt } from './utils/extract';
+import wxPush from './utils/wxpusher';
 
 export const fetchFeeds = async (env: Bindings) => {
   const { results: feeds } = await env.D1DATA.prepare(
     'SELECT * FROM feeds'
   ).all();
   for (let feed of feeds) {
-    const { id, folderId, userId, driver } = feed;
+    const { id, folderId, userId, driver, wxUid } = feed;
     const datas = await fetchFeed(feed.url as string);
     const { results: links }: { results: ILink[] } =
       await env.D1DATA.prepare(`SELECT * FROM links`).all();
@@ -25,6 +26,7 @@ export const fetchFeeds = async (env: Bindings) => {
           id: uuidv4(),
           feedId: id,
           userId,
+          wxUid,
           url,
           title: data.title,
           checked: 1,
@@ -42,7 +44,7 @@ export const fetchLinks = async (env: Bindings) => {
     'SELECT * FROM links WHERE saved = 0'
   ).all();
   for (let data of links) {
-    const { userId, url, title, driver, folderId } = data as Record<
+    const { userId, url, title, driver, folderId, wxUid } = data as Record<
       string,
       string
     >;
@@ -53,12 +55,16 @@ export const fetchLinks = async (env: Bindings) => {
       title,
       folderId,
     });
-    await updateD1Data(env.D1DATA, 'links', {
-      id: data.id,
-      data: {
-        saved: 1,
-      },
-    });
     console.log(res);
+    if (res.error) {
+      wxUid && (await wxPush(wxUid, res.error_description));
+    } else {
+      await updateD1Data(env.D1DATA, 'links', {
+        id: data.id,
+        data: {
+          saved: 1,
+        },
+      });
+    }
   }
 };

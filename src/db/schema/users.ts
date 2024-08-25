@@ -17,7 +17,7 @@ export const definition = {
   name: text('name'),
   email: text('email'),
   password: text('password'),
-  // wechat: text('wechat'),
+  wxUid: text('wxUid'),
   role: text('role').$type<'admin' | 'editor' | 'user'>(),
   plan: text('plan').$type<'normal' | 'pro' | 'supper'>(),
 };

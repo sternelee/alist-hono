@@ -16,6 +16,7 @@ export const definition = {
   title: text('title'),
   url: text('url'),
   userId: text('userId'),
+  wxUid: text('wxUid'),
   driver: text('driver'),
   folderId: text('folderId'),
   folderName: text('folderName'),
@@ -103,6 +104,7 @@ export const hooks: ApiConfig['hooks'] = {
     create: (ctx, data) => {
       if (ctx.get('user')?.userId) {
         data.userId = ctx.get('user').userId;
+        data.wxUid = ctx.get('user').wxUid;
       }
       return data;
     },

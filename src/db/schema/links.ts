@@ -15,6 +15,7 @@ export const definition = {
   url: text('url'),
   title: text('title'),
   feedId: integer('feedId'),
+  wxUid: text('wxUid'),
   userId: text('userId'),
   driver: text('driver'),
   folderId: text('folderId'),
