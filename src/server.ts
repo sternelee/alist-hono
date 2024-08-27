@@ -10,7 +10,6 @@ import { authRoute } from './handlers/authHandler';
 import { apiRoute } from './handlers/apiHandler';
 import { AppContextEnv } from './db';
 import { fetchFeeds, fetchLinks } from './task';
-import { json } from 'stream/consumers';
 
 // Create a new Hono server instance
 const app = new Hono<AppContextEnv>();

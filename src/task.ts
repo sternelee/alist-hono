@@ -10,6 +10,7 @@ export const fetchFeeds = async (env: Bindings) => {
   const { results: feeds } = await env.D1DATA.prepare(
     'SELECT * FROM feeds'
   ).all();
+  console.log('feeds:', feeds);
   for (let feed of feeds) {
     const { id, folderId, userId, driver, wxUid } = feed;
     const datas = await fetchFeed(feed.url as string);
@@ -43,6 +44,7 @@ export const fetchLinks = async (env: Bindings) => {
   const { results: links } = await env.D1DATA.prepare(
     'SELECT * FROM links WHERE saved = 0'
   ).all();
+  console.log('links:', links);
   for (let data of links) {
     const { userId, url, title, driver, folderId, wxUid } = data as Record<
       string,
