@@ -18,9 +18,11 @@ export const fetchFeeds = async (env: Bindings) => {
       await env.D1DATA.prepare(`SELECT * FROM links`).all();
     const titles = links.map((link) => link.title);
     for (let data of datas) {
+      console.log('data:', data);
       if (!titles.includes(data.title)) {
         let url = data.link;
-        if (data.link.includes('acg.rip')) {
+        console.log('url:', url);
+        if (url.includes('.torrent')) {
           url = await fetchBt(url);
         }
         await insertD1Data(env.D1DATA, 'links', {

@@ -38,10 +38,9 @@ interface CaptchaTokenResponse {
   url: string;
 }
 
-export interface IKVData {
-  login: TokenResp;
+export type IKVData = TokenResp & {
   captcha_token: string;
-}
+};
 
 /*
  * 登录
@@ -256,7 +255,7 @@ export const login = async (
       body: JSON.stringify(body),
     }).then((res) => res.json());
     return {
-      login: resp,
+      ...resp,
       captcha_token,
     };
   } catch (err) {
@@ -284,11 +283,10 @@ const baseRequest = async (
   method: 'GET' | 'POST',
   data: Record<string, any>
 ) => {
-  let { login, captcha_token } = cache;
   const headers = {
     ...Headers,
-    Authorization: token(login),
-    'X-Captcha-Token': captcha_token || '',
+    Authorization: token(cache),
+    'X-Captcha-Token': cache.captcha_token || '',
   };
   let body: undefined | string = undefined;
   if (method === 'GET') {
@@ -309,13 +307,13 @@ const baseRequest = async (
     if ([4122, 4121, 10, 16].includes(err.error_code)) {
       // refreshToken 过期
       try {
-        const loginData = await refreshToken(cache.login.refresh_token);
+        const loginData = await refreshToken(cache.refresh_token);
         return baseRequest(
           kv,
           kvKey,
           {
-            captcha_token,
-            login: loginData,
+            ...cache,
+            ...loginData,
           },
           url,
           method,
@@ -328,17 +326,17 @@ const baseRequest = async (
     }
     if (err.error_code === 9) {
       // 验证码token过期
-      captcha_token = await refreshCaptchaTokenAtLogin({
+      const captcha_token = await refreshCaptchaTokenAtLogin({
         action: getAction(method, url),
-        user_id: login.user_id,
-        captcha_token,
+        user_id: cache.user_id,
+        captcha_token: cache.captcha_token,
       });
       return baseRequest(
         kv,
         kvKey,
         {
+          ...cache,
           captcha_token,
-          login,
         },
         url,
         method,
