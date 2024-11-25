@@ -14,6 +14,6 @@ export interface ISaveBody {
   userId: string;
   driver: string;
   url: string;
-  title: string;
+  name: string;
   folderId: string;
 }

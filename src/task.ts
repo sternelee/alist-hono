@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { insertD1Data, updateD1Data } from './db/d1-data';
 import { Bindings } from './bindings';
-import { savePan } from './drivers';
+import { save } from './drivers';
 import { ILink } from './drivers/_types';
 import { fetchFeed, fetchBt } from './utils/extract';
 import wxPush from './utils/wxpusher';
@@ -52,7 +52,7 @@ export const fetchLinks = async (env: Bindings) => {
       string,
       string
     >;
-    const res = await savePan(env.KVDATA, {
+    const res = await save(env.KVDATA, {
       userId,
       driver,
       url,

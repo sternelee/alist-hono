@@ -1,34 +1,40 @@
-import { save as thunderSave, login as thunderLogin, THUNDER } from './thunder';
-import { ISaveBody } from './_types';
+import Thunder, { THUNDER } from './thunder';
 
 export async function login(kv: KVNamespace, content) {
   const { driver, userId, username, password } = content;
   if (driver === THUNDER) {
-    const resp = (await thunderLogin({ username, password })) as any;
-    console.log('resp:', resp);
-    if (resp.login) {
-      await kv.put(`${userId}_${driver}`, JSON.stringify(resp));
-      return resp.login;
-    } else {
-      return resp;
-    }
+    const thuner = new Thunder(kv, userId);
+    const resp = (await thuner.login({ username, password })) as any;
+    return resp;
   } else {
     return {};
   }
 }
 
-export async function savePan(
+export async function save(
   kv: KVNamespace,
-  params: ISaveBody
+  params
 ): Promise<any> {
-  const { driver, userId, title, url, folderId } = params;
+  const { driver, userId, name, url, folderId } = params;
   if (driver === THUNDER) {
-    const res = await thunderSave(kv, userId, {
-      name: title,
+    const thuner = new Thunder(kv, userId);
+    const resp = await thuner.save({
+      name,
       url,
       parent_id: folderId,
     });
-    console.log(res);
+    return resp;
+  } else {
+    return {};
+  }
+}
+
+export async function logout(kv: KVNamespace, content) {
+  const { driver, userId } = content;
+  if (driver === THUNDER) {
+    const thuner = new Thunder(kv, userId);
+    const resp = (await thuner.logout()) as any;
+    return resp;
   } else {
     return {};
   }
