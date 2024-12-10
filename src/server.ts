@@ -3,11 +3,12 @@ import { prettyJSON } from 'hono/pretty-json';
 import { HTTPException } from 'hono/http-exception';
 import { compress } from 'hono/compress';
 import { getRuntimeKey } from 'hono/adapter';
-import { authRoute } from './handlers/authHandler';
+import { cors } from 'hono/cors';
 import { apiRoute } from './handlers/apiHandler';
 import { AppContextEnv } from './db';
 import { fetchFeeds, fetchLinks } from './task';
 import adminRouter from './admin';
+import { initializeAuth } from './lib/auth';
 
 const app = new Hono<AppContextEnv>();
 
@@ -38,9 +39,25 @@ app.route('/admin', adminRouter);
 
 /**
  *  登陆相关
+ * 三方登陆
  */
 
-app.route('/v1/auth', authRoute);
+app.use(
+  '/v1/auth/**',
+  cors({
+    origin: 'http://localhost:3001',
+    allowHeaders: ['Content-Type', 'Authorization'],
+    allowMethods: ['POST', 'GET', 'OPTIONS'],
+    exposeHeaders: ['Content-Length'],
+    maxAge: 600,
+    credentials: true,
+  }),
+  (c) => {
+		const auth = initializeAuth(c.env);
+    const authToken = auth.handler(c.req.raw);
+    return authToken;
+  }
+);
 
 /**
  *  数据相关

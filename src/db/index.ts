@@ -1,5 +1,5 @@
 import { Context } from 'hono';
-import { AuthRequest, Session, User } from 'lucia';
+import { Session, User } from 'better-auth';
 import { Bindings } from '../bindings';
 import * as users from './schema/users';
 import * as userKeys from './schema/userKeys';
@@ -10,7 +10,6 @@ import * as links from './schema/links';
 import { isAdminOrEditor } from './config-helpers';
 
 export type Variables = {
-  authRequest: AuthRequest;
   session?: Session;
   user?: User;
 };

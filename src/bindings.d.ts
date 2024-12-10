@@ -6,4 +6,8 @@ export type Bindings = {
   ENVIRONMENT?: 'production' | 'development';
   WX_PUSH_Token?: string;
   AUTH_ITERATIONS?: string;
+	BETTER_AUTH_SECRET: string;
+	BETTER_AUTH_URL: string;
+	GITHUB_CLIENT_ID: string;
+	GITHUB_CLIENT_SECRET: string;
 };

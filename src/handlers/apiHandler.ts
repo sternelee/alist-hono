@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import qs from 'qs';
-import { initializeLucia } from '../db/lucia';
 import { AppContextEnv, apiConfig } from '../db';
 import {
   getRecords,
@@ -8,40 +7,32 @@ import {
   updateRecord,
   deleteRecord,
 } from '../db/data';
-import {
-  filterCreateFieldAccess,
-  filterReadFieldAccess,
-  filterUpdateFieldAccess,
-  getApiAccessControlResult,
-  getItemReadResult,
-  getOperationCreateResult,
-} from '../db/auth-helpers';
 import { login } from '../drivers';
 import { fetchFeed } from '../utils/extract';
 
 const apiRoute = new Hono<AppContextEnv>();
 
-apiRoute.use('*', async (ctx, next) => {
-  const auth = initializeLucia(ctx.env.D1DATA, ctx.env);
-  // @ts-ignore
-  const authRequest = auth.handleRequest(ctx);
-  let session = await authRequest.validate();
-  if (!session) {
-    session = await authRequest.validateBearerToken();
-  }
-  if (!session) {
-    return ctx.redirect('/admin/login', 302);
-  }
-  if (session?.user?.userId) {
-    ctx.set('user', session.user);
-  }
-
-  authRequest.setSession(session);
-
-  ctx.set('authRequest', authRequest);
-  ctx.set('session', session);
-  await next();
-});
+// apiRoute.use('*', async (ctx, next) => {
+//   const auth = initializeLucia(ctx.env.D1DATA, ctx.env);
+//   // @ts-ignore
+//   const authRequest = auth.handleRequest(ctx);
+//   let session = await authRequest.validate();
+//   if (!session) {
+//     session = await authRequest.validateBearerToken();
+//   }
+//   if (!session) {
+//     return ctx.redirect('/admin/login', 302);
+//   }
+//   if (session?.user?.userId) {
+//     ctx.set('user', session.user);
+//   }
+//
+//   authRequest.setSession(session);
+//
+//   ctx.set('authRequest', authRequest);
+//   ctx.set('session', session);
+//   await next();
+// });
 
 const tables = apiConfig.filter((tbl) => tbl.table !== 'users');
 tables.forEach((entry) => {
@@ -55,43 +46,10 @@ tables.forEach((entry) => {
       // @ts-ignore
       await entry.hooks.beforeOperation(ctx, 'read', params.id, params);
     }
-    const accessControlResult = await getApiAccessControlResult(
-      entry?.access?.operation?.read || true,
-      entry?.access?.filter?.read || true,
-      true,
-      ctx,
-      params.id,
-      entry.table
-    );
-
-    if (typeof accessControlResult === 'object') {
-      params.accessControlResult = { ...accessControlResult };
-    }
-
-    if (!accessControlResult) {
-      return ctx.text('Unauthorized', 401);
-    }
-
     try {
       params.limit = params.limit ?? '1000';
       ctx.env.D1DATA = ctx.env.D1DATA;
       let data = await getRecords(ctx, entry.table, params);
-
-      if (entry.access?.item?.read) {
-        const accessControlResult = await getItemReadResult(
-          entry.access.item.read,
-          ctx,
-          data
-        );
-        if (!accessControlResult) {
-          return ctx.text('Unauthorized', 401);
-        }
-      }
-      data.data = await filterReadFieldAccess(
-        entry.access?.fields,
-        ctx,
-        data.data
-      );
 
       if (entry.hooks?.afterOperation) {
         // @ts-ignore
@@ -125,24 +83,6 @@ tables.forEach((entry) => {
     }
 
     params.id = id;
-    // will check the item result when we get the data
-    const accessControlResult = await getApiAccessControlResult(
-      entry?.access?.operation?.read || true,
-      entry?.access?.filter?.read || true,
-      true,
-      ctx,
-      id,
-      entry.table
-    );
-
-    if (typeof accessControlResult === 'object') {
-      params = { ...params, ...accessControlResult };
-    }
-
-    if (!accessControlResult) {
-      return ctx.text('Unauthorized', 401);
-    }
-
     ctx.env.D1DATA = ctx.env.D1DATA;
 
     source = source || 'fastest';
@@ -152,17 +92,6 @@ tables.forEach((entry) => {
 
     let data = await getRecords(ctx, entry.table, params);
 
-    if (entry.access?.item?.read) {
-      const accessControlResult = await getItemReadResult(
-        entry.access.item.read,
-        ctx,
-        data
-      );
-      if (!accessControlResult) {
-        return ctx.text('Unauthorized', 401);
-      }
-    }
-    data = await filterReadFieldAccess(entry.access?.fields, ctx, data);
     if (entry.hooks?.afterOperation) {
       await entry.hooks.afterOperation(ctx, 'read', id, null, data);
     }
@@ -185,21 +114,7 @@ tables.forEach((entry) => {
 
     content.table = entry.route;
 
-    let authorized = await getOperationCreateResult(
-      entry?.access?.operation?.create,
-      ctx,
-      content.data
-    );
-    if (!authorized) {
-      return ctx.text('Unauthorized', 401);
-    }
-
     try {
-      content.data = await filterCreateFieldAccess(
-        entry?.access?.fields,
-        ctx,
-        content.data
-      );
       if (entry?.hooks?.resolveInput?.create) {
         content.data = await entry.hooks.resolveInput.create(ctx, content.data);
       }
@@ -234,34 +149,10 @@ tables.forEach((entry) => {
     }
 
     let { includeContentType, source, ...params } = ctx.req.query();
-    const accessControlResult = await getApiAccessControlResult(
-      entry?.access?.operation?.update || true,
-      entry?.access?.filter?.update || true,
-      entry?.access?.item?.update || true,
-      ctx,
-      id,
-      entry.table,
-      content.data
-    );
-
-    if (typeof accessControlResult === 'object') {
-      params = { ...params, ...accessControlResult };
-    }
-
-    if (!accessControlResult) {
-      return ctx.text('Unauthorized', 401);
-    }
-
     content.table = entry.table;
     content.id = id;
 
     try {
-      content.data = await filterUpdateFieldAccess(
-        entry.access?.fields,
-        ctx,
-        id,
-        content.data
-      );
       if (entry?.hooks?.resolveInput?.update) {
         content.data = await entry.hooks.resolveInput.update(
           ctx,
@@ -290,22 +181,6 @@ tables.forEach((entry) => {
 
     let { includeContentType, source, ...params } = ctx.req.query();
 
-    const accessControlResult = await getApiAccessControlResult(
-      entry?.access?.operation?.delete || true,
-      entry?.access?.filter?.delete || true,
-      entry?.access?.item?.delete || true,
-      ctx,
-      id,
-      entry.table
-    );
-
-    if (typeof accessControlResult === 'object') {
-      params = { ...params, ...accessControlResult };
-    }
-
-    if (!accessControlResult) {
-      return ctx.text('Unauthorized', 401);
-    }
     params.id = id;
 
     const record = await getRecords(ctx, entry.table, params);

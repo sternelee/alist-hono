@@ -2,7 +2,6 @@ import { sqliteTable, index, text } from 'drizzle-orm/sqlite-core';
 
 import { relations } from 'drizzle-orm';
 import { auditSchema } from './audit';
-import * as users from './users';
 import * as links from './links';
 import { ApiConfig } from '../index';
 import { isAdmin, isAdminOrEditor } from '../config-helpers';
@@ -37,10 +36,6 @@ export const table = sqliteTable(
 );
 
 export const relation = relations(table, ({ one, many }) => ({
-  user: one(users.table, {
-    fields: [table.userId],
-    references: [users.table.id],
-  }),
   links: many(links.table),
 }));
 

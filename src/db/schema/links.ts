@@ -2,7 +2,6 @@ import { sqliteTable, index, text, integer } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 import { auditSchema } from './audit';
 import * as feeds from './feeds';
-import * as users from './users';
 import { ApiConfig } from '../index';
 import { isAdmin, isAdminOrUser } from '../config-helpers';
 
@@ -41,10 +40,6 @@ export const relation = relations(table, ({ one }) => ({
   post: one(feeds.table, {
     fields: [table.feedId],
     references: [feeds.table.id],
-  }),
-  user: one(users.table, {
-    fields: [table.userId],
-    references: [users.table.id],
   }),
 }));
 
