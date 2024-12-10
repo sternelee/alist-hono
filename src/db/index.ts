@@ -1,9 +1,7 @@
 import { Context } from 'hono';
 import { Session, User } from 'better-auth';
 import { Bindings } from '../bindings';
-import * as users from './schema/users';
-import * as userKeys from './schema/userKeys';
-import * as userSessions from './schema/userSessions';
+import { user, session, account, verification } from './schema/auth';
 import * as drivers from './schema/drivers';
 import * as feeds from './schema/feeds';
 import * as links from './schema/links';
@@ -38,24 +36,24 @@ export interface ApiConfig {
     operation?: {
       // Determines if creating a new document in the table is allowed.
       create?:
-        | boolean
-        | ((ctx?: AppContext, data?: any) => boolean | Promise<boolean>);
+      | boolean
+      | ((ctx?: AppContext, data?: any) => boolean | Promise<boolean>);
       // Determines if reading a document from the table is allowed.
       read?:
-        | boolean
-        | ((ctx?: AppContext, id?: string) => boolean | Promise<boolean>);
+      | boolean
+      | ((ctx?: AppContext, id?: string) => boolean | Promise<boolean>);
       // Determines if updating a document in the table is allowed.
       update?:
-        | boolean
-        | ((
-            ctx?: AppContext,
-            id?: string,
-            data?: any
-          ) => boolean | Promise<boolean>);
+      | boolean
+      | ((
+        ctx?: AppContext,
+        id?: string,
+        data?: any
+      ) => boolean | Promise<boolean>);
       // Determines if deleting a document from the table is allowed.
       delete?:
-        | boolean
-        | ((ctx: AppContext, id: string) => boolean | Promise<boolean>);
+      | boolean
+      | ((ctx: AppContext, id: string) => boolean | Promise<boolean>);
     };
     // Defines the access control for filtering documents in the table based on certain conditions.
     // If a filter is returned the filter will be added to the operation.
@@ -63,54 +61,54 @@ export interface ApiConfig {
     // Can also return a pboolean in which case it acts the same as operation
     filter?: {
       read?:
-        | JSFilter
-        | ((ctx?: AppContext, id?: string) => JSFilter | Promise<JSFilter>)
-        | boolean
-        | ((ctx: AppContext, id: string) => boolean | Promise<boolean>);
+      | JSFilter
+      | ((ctx?: AppContext, id?: string) => JSFilter | Promise<JSFilter>)
+      | boolean
+      | ((ctx: AppContext, id: string) => boolean | Promise<boolean>);
       update?:
-        | JSFilter
-        | ((
-            ctx?: AppContext,
-            id?: string,
-            data?: any
-          ) => JSFilter | Promise<JSFilter>)
-        | boolean
-        | ((
-            ctx?: AppContext,
-            id?: string,
-            data?: any
-          ) => boolean | Promise<boolean>);
+      | JSFilter
+      | ((
+        ctx?: AppContext,
+        id?: string,
+        data?: any
+      ) => JSFilter | Promise<JSFilter>)
+      | boolean
+      | ((
+        ctx?: AppContext,
+        id?: string,
+        data?: any
+      ) => boolean | Promise<boolean>);
       delete?:
-        | JSFilter
-        | ((ctx?: AppContext, id?: string) => JSFilter | Promise<JSFilter>)
-        | boolean
-        | ((ctx?: AppContext, id?: string) => boolean | Promise<boolean>);
+      | JSFilter
+      | ((ctx?: AppContext, id?: string) => JSFilter | Promise<JSFilter>)
+      | boolean
+      | ((ctx?: AppContext, id?: string) => boolean | Promise<boolean>);
     };
     // More powerful but also less performant access control because the doc being requested/updated/deleted is read passed in.
     // This allows more complex access control based on the document the action is being performed on.
     item?: {
       read?:
-        | boolean
-        | ((
-            ctx?: AppContext,
-            id?: string,
-            doc?: any
-          ) => boolean | Promise<boolean>);
+      | boolean
+      | ((
+        ctx?: AppContext,
+        id?: string,
+        doc?: any
+      ) => boolean | Promise<boolean>);
       update?:
-        | boolean
-        | ((
-            ctx?: AppContext,
-            id?: string,
-            data?: any,
-            doc?: any
-          ) => boolean | Promise<boolean>);
+      | boolean
+      | ((
+        ctx?: AppContext,
+        id?: string,
+        data?: any,
+        doc?: any
+      ) => boolean | Promise<boolean>);
       delete?:
-        | boolean
-        | ((
-            ctx?: AppContext,
-            id?: string,
-            doc?: any
-          ) => boolean | Promise<boolean>);
+      | boolean
+      | ((
+        ctx?: AppContext,
+        id?: string,
+        doc?: any
+      ) => boolean | Promise<boolean>);
     };
     // Defines the access control for each field in the table.
     // Read – applied when the field is selected through any operation
@@ -126,25 +124,25 @@ export interface ApiConfig {
       [field: string]: {
         // Returns a boolean which allows or denies the ability to set a field's value when creating a new document. If false is returned, any passed values will be discarded.
         create?:
-          | boolean
-          | ((ctx?: AppContext, data?: any) => boolean | Promise<boolean>);
+        | boolean
+        | ((ctx?: AppContext, data?: any) => boolean | Promise<boolean>);
         //Returns a boolean which allows or denies the ability to read a field's value. If false, the entire property is omitted from the resulting document.
         read?:
-          | boolean
-          | ((
-              ctx?: AppContext,
-              value?: string,
-              doc?: any
-            ) => boolean | Promise<boolean>);
+        | boolean
+        | ((
+          ctx?: AppContext,
+          value?: string,
+          doc?: any
+        ) => boolean | Promise<boolean>);
         // Returns a boolean which allows or denies the ability to update a field's value. If false is returned, any passed values will be discarded.
         // If false is returned and you attempt to update the field's value, the operation will not throw an error however the field will be omitted from the update operation and the value will remain unchanged.
         update?:
-          | boolean
-          | ((
-              ctx?: AppContext,
-              id?: string,
-              data?: any
-            ) => boolean | Promise<boolean>);
+        | boolean
+        | ((
+          ctx?: AppContext,
+          id?: string,
+          data?: any
+        ) => boolean | Promise<boolean>);
       };
     };
   };
@@ -169,32 +167,30 @@ export interface ApiConfig {
   };
   fields?: {
     [field: string]:
-      | {
-          type: 'auto' | 'string[]';
-        }
-      | {
-          type: 'file' | 'file[]';
-          bucket: (ctx: AppContext) => R2Bucket;
-          path?: string | ((ctx: AppContext) => string);
-        }
-      | {
-          type: 'password';
-        }
-      | {
-          type: 'ckeditor';
-        }
-      | {
-          type: 'quill';
-        };
+    | {
+      type: 'auto' | 'string[]';
+    }
+    | {
+      type: 'file' | 'file[]';
+      bucket: (ctx: AppContext) => R2Bucket;
+      path?: string | ((ctx: AppContext) => string);
+    }
+    | {
+      type: 'password';
+    }
+    | {
+      type: 'ckeditor';
+    }
+    | {
+      type: 'quill';
+    };
   };
 }
 
 export const apiConfig: ApiConfig[] = [];
 
 export const tableSchemas = {
-  users,
-  userKeys,
-  userSessions,
+  user, session, account, verification,
   drivers,
   feeds,
   links,

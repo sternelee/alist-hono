@@ -5,10 +5,10 @@ export const Layout = (props: { children: any }) => html`
   <html>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-			<script src="https://cdn.jsdelivr.net/npm/@unocss/runtime"></script>
-      <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
-      <script src="https://unpkg.com/hyperscript.org@0.9.13" defer></script>
-      <script src="https://unpkg.com/alpinejs" defer></script>
+			<script src="static/uno.css"></script>
+      <script src="static/htmx.min.js" defer></script>
+      <script src="static/hyperscript.min.js" defer></script>
+      <script src="static/alpine.min.js" defer></script>
       <title>Alist Hono</title>
     </head>
     <body>

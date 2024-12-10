@@ -8,6 +8,13 @@
       "when": 1724553055155,
       "tag": "0000_talented_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1733801944990,
+      "tag": "0001_special_xorn",
+      "breakpoints": true
     }
   ]
 }

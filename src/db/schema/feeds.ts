@@ -1,5 +1,5 @@
-import { sqliteTable, index, text } from 'drizzle-orm/sqlite-core';
-
+import { text } from 'drizzle-orm/sqlite-core/columns';
+import { sqliteTable, index } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 import { auditSchema } from './audit';
 import * as links from './links';
@@ -62,10 +62,10 @@ export const access: ApiConfig['access'] = {
       }
     },
     delete: (ctx) => {
-      if (isAdmin(ctx)) {
+      if (isAdmin(ctx!)) {
         return true;
       } else {
-        const user = ctx.get('user');
+        const user = ctx!.get('user');
         if (user?.userId) {
           // Return filter so update doesn't happen if userId doesn't match
           return {

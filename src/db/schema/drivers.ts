@@ -1,4 +1,5 @@
-import { sqliteTable, index, text } from 'drizzle-orm/sqlite-core';
+import { text } from 'drizzle-orm/sqlite-core/columns';
+import { sqliteTable, index } from 'drizzle-orm/sqlite-core';
 
 import { auditSchema } from './audit';
 import { ApiConfig, AppContext } from '../index';
