@@ -10,6 +10,13 @@ export const initializeAuth = (env: Bindings) => {
     database: drizzleAdapter(db, {
       provider: 'sqlite',
     }),
+    secondaryStorage: {
+      get: key => env.KVDATA.get(`_auth:${key}`),
+      set: (key, value, ttl) => {
+        return env.KVDATA.put(`_auth:${key}`, value, { expirationTtl: ttl })
+      },
+      delete: key => env.KVDATA.delete(`_auth:${key}`),
+    },
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
     emailAndPassword: {
@@ -24,3 +31,5 @@ export const initializeAuth = (env: Bindings) => {
     plugins: [username(), admin()],
   });
 };
+
+export type Auth = ReturnType<typeof initializeAuth>;

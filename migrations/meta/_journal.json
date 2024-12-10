@@ -15,6 +15,13 @@
       "when": 1733801944990,
       "tag": "0001_special_xorn",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1733807182232,
+      "tag": "0002_left_wendigo",
+      "breakpoints": true
     }
   ]
 }

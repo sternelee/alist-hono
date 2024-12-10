@@ -4,9 +4,8 @@ import { HTTPException } from 'hono/http-exception';
 import { compress } from 'hono/compress';
 import { getRuntimeKey } from 'hono/adapter';
 import { cors } from 'hono/cors';
-import { apiRoute } from './handlers/apiHandler';
+import { drizzle } from 'drizzle-orm/d1';
 import { AppContextEnv } from './db';
-import { fetchFeeds, fetchLinks } from './task';
 import adminRouter from './admin';
 import { initializeAuth } from './lib/auth';
 import { Layout } from './components/Layout'
@@ -23,13 +22,6 @@ app.use('*', (c, next) => {
   return next();
 });
 
-app.get('/', (c) => {
-  const path = c.req.path;
-  return c.html(
-    <Layout><Home /></Layout>
-  )
-})
-
 app.use('*', prettyJSON());
 
 app.notFound((c) => c.json({ message: 'Not Found', ok: false }, 404));
@@ -42,15 +34,43 @@ app.onError((err, c) => {
   return c.json({ status: 'failure', message: err.message });
 });
 
+app.use("*", async (c, next) => {
+  const path = c.req.path;
+  const db = drizzle(c.env.D1DATA);
+	c.set('db', db);
+  const auth = initializeAuth(c.env);
+	c.set('auth', auth);
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+
+  if (!session) {
+    c.set("user", null);
+    c.set("session", null);
+    if (path.startsWith('/admin')) {
+      return c.redirect('/login');
+    }
+    return next();
+  }
+
+  c.set("user", session.user);
+  c.set("session", session.session);
+  return next();
+});
+
+app.get('/', (c) => {
+  // const path = c.req.path;
+  return c.html(
+    <Layout><Home /></Layout>
+  )
+})
+
 app.route('/admin', adminRouter);
 
 /**
- *  登陆相关
- * 三方登陆
+ *  登陆授权相关
  */
 
 app.use(
-  '/v1/auth/**',
+  '/api/auth/**',
   cors({
     origin: 'http://localhost:3001',
     allowHeaders: ['Content-Type', 'Authorization'],
@@ -60,8 +80,9 @@ app.use(
     credentials: true,
   }),
   (c) => {
-		const auth = initializeAuth(c.env);
+    const auth = c.get('auth');
     const authToken = auth.handler(c.req.raw);
+    console.log('authToken', authToken);
     return authToken;
   }
 );
@@ -70,13 +91,13 @@ app.use(
  *  数据相关
  */
 
-app.route('/v1/api', apiRoute);
-
-app.get('/v1/task', async (c) => {
-  await fetchFeeds(c.env);
-  await fetchLinks(c.env);
-  return c.json({ status: 'ok' });
-});
+// app.route('/v1/api', apiRoute);
+//
+// app.get('/v1/task', async (c) => {
+//   await fetchFeeds(c.env);
+//   await fetchLinks(c.env);
+//   return c.json({ status: 'ok' });
+// });
 
 /**
  * @deprecated

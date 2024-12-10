@@ -1,22 +1,26 @@
 import { Context } from 'hono';
 import { Session, User } from 'better-auth';
+import { DrizzleD1Database } from 'drizzle-orm/d1';
 import { Bindings } from '../bindings';
 import { user, session, account, verification } from './schema/auth';
 import * as drivers from './schema/drivers';
 import * as feeds from './schema/feeds';
 import * as links from './schema/links';
 import { isAdminOrEditor } from './config-helpers';
+import { Auth } from '../lib/auth';
 
 export type Variables = {
-  session?: Session;
-  user?: User;
+	db: DrizzleD1Database<Record<string, never>>;
+	auth: Auth;
+  session: Session | null;
+  user: User | null;
 };
 
 export type JSFilter = Record<string, any>;
 
 export type AppContextEnv = { Bindings: Bindings; Variables: Variables };
 
-export type AppContext = Context<{ Bindings: Bindings; Variables: Variables }>;
+export type AppContext = Context<AppContextEnv>;
 
 export interface ApiConfig {
   table: string;

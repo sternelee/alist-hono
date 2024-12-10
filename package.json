@@ -26,7 +26,7 @@
     "up": "wrangler d1 migrations apply alist --local",
     "up:prod": "wrangler d1 migrations apply alist",
     "deploy": "wrangler deploy --minify src/index.ts",
-    "dev:unocss": "unocss --watch",
+    "dev:unocss": "unocss --minify --watch",
     "test": "ts-jest"
   },
   "dependencies": {

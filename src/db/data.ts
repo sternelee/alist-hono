@@ -5,10 +5,11 @@ import {
   insertD1Data,
   updateD1Data,
 } from './d1-data';
+import { AppContext } from './index';
 
 export async function getRecords(
-  ctx,
-  table,
+  ctx: AppContext,
+  table: string,
   params,
   customDataFunction: undefined | Function = undefined
 ): Promise<{ data: any; source: string; total: number; contentType?: any }> {
