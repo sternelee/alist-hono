@@ -8,6 +8,8 @@ import { apiRoute } from './handlers/apiHandler';
 import { AppContextEnv } from './db';
 import { fetchFeeds, fetchLinks } from './task';
 import adminRouter from './admin';
+import { Layout } from './components/Layout'
+import { Home } from './components/Home';
 
 const app = new Hono<AppContextEnv>();
 
@@ -20,7 +22,13 @@ app.use('*', (c, next) => {
   return next();
 });
 
-app.get('/', (c) => c.text('Alist Cloudflare Server!'));
+// app.get('/', (c) => c.text('Alist Cloudflare Server!'));
+app.get('/', (c) => {
+  const path = c.req.path;
+  return c.html(
+    <Layout><Home /></Layout>
+  )
+})
 
 app.use('*', prettyJSON());
 
