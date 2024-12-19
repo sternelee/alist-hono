@@ -17,6 +17,9 @@ CREATE TABLE `session` (
 	`ipAddress` text,
 	`userAgent` text,
 	`userId` text NOT NULL,
+	`token` text,
+	`createdAt` integer NOT NULL,
+	`updatedAt` integer NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -28,6 +31,7 @@ CREATE TABLE `user` (
 	`email` text NOT NULL,
 	`emailVerified` integer NOT NULL,
 	`image` text,
+	`role` text,
 	`createdAt` integer NOT NULL,
 	`updatedAt` integer NOT NULL
 );
@@ -40,18 +44,45 @@ CREATE TABLE `verification` (
 	`expiresAt` integer NOT NULL
 );
 --> statement-breakpoint
-DROP TABLE `user_keys`;--> statement-breakpoint
-DROP TABLE `user_sessions`;--> statement-breakpoint
-DROP TABLE `users`;--> statement-breakpoint
-ALTER TABLE `drivers` ADD `createdAt` integer NOT NULL;--> statement-breakpoint
-ALTER TABLE `drivers` ADD `updatedAt` integer NOT NULL;--> statement-breakpoint
-ALTER TABLE `drivers` DROP COLUMN `createdOn`;--> statement-breakpoint
-ALTER TABLE `drivers` DROP COLUMN `updatedOn`;--> statement-breakpoint
-ALTER TABLE `feeds` ADD `createdAt` integer NOT NULL;--> statement-breakpoint
-ALTER TABLE `feeds` ADD `updatedAt` integer NOT NULL;--> statement-breakpoint
-ALTER TABLE `feeds` DROP COLUMN `createdOn`;--> statement-breakpoint
-ALTER TABLE `feeds` DROP COLUMN `updatedOn`;--> statement-breakpoint
-ALTER TABLE `links` ADD `createdAt` integer NOT NULL;--> statement-breakpoint
-ALTER TABLE `links` ADD `updatedAt` integer NOT NULL;--> statement-breakpoint
-ALTER TABLE `links` DROP COLUMN `createdOn`;--> statement-breakpoint
-ALTER TABLE `links` DROP COLUMN `updatedOn`;
+CREATE TABLE `drivers` (
+	`id` text PRIMARY KEY NOT NULL,
+	`title` text,
+	`userId` text,
+	`config` text,
+	`createdAt` integer NOT NULL,
+	`updatedAt` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE INDEX `driverUserIdIndex` ON `drivers` (`userId`);--> statement-breakpoint
+CREATE TABLE `feeds` (
+	`id` text PRIMARY KEY NOT NULL,
+	`title` text,
+	`url` text,
+	`userId` text,
+	`wxUid` text,
+	`driver` text,
+	`folderId` text,
+	`folderName` text,
+	`regexp` text,
+	`createdAt` integer NOT NULL,
+	`updatedAt` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE INDEX `feedUserIdIndex` ON `feeds` (`userId`);--> statement-breakpoint
+CREATE TABLE `links` (
+	`id` text PRIMARY KEY NOT NULL,
+	`url` text,
+	`title` text,
+	`feedId` integer,
+	`wxUid` text,
+	`userId` text,
+	`driver` text,
+	`folderId` text,
+	`checked` integer,
+	`saved` integer,
+	`createdAt` integer NOT NULL,
+	`updatedAt` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE INDEX `linkUserIdIndex` ON `links` (`userId`);--> statement-breakpoint
+CREATE INDEX `linkPostIdIndex` ON `links` (`feedId`);

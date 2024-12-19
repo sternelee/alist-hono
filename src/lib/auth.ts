@@ -3,12 +3,14 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { username, admin } from 'better-auth/plugins';
 import { drizzle } from 'drizzle-orm/d1';
 import { Bindings } from '../bindings';
+import * as schema from '../db/schema/auth';
 
 export const initializeAuth = (env: Bindings) => {
   const db = drizzle(env.D1DATA);
   return betterAuth({
     database: drizzleAdapter(db, {
       provider: 'sqlite',
+			schema
     }),
     secondaryStorage: {
       get: key => env.KVDATA.get(`_auth:${key}`),

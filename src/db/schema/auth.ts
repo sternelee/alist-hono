@@ -48,5 +48,6 @@ export const verification = sqliteTable("verification", {
 	value: text('value').notNull(),
 	expiresAt: integer('expiresAt', {
 		mode: "timestamp"
-	}).notNull()
+	}).notNull(),
+	...auditSchema,
 });

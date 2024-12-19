@@ -5,7 +5,7 @@ export const Layout = (props: { children: any }) => html`
   <html>
     <head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-			<script src="static/uno.css"></script>
+      <link rel="stylesheet" href="static/uno.css" />
       <script src="static/htmx.min.js" defer></script>
       <script src="static/hyperscript.min.js" defer></script>
       <script src="static/alpine.min.js" defer></script>

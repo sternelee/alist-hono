@@ -10,6 +10,7 @@ import adminRouter from './admin';
 import { initializeAuth } from './lib/auth';
 import { Layout } from './components/Layout'
 import { Home } from './components/Home';
+import { Login } from './components/Login';
 
 const app = new Hono<AppContextEnv>();
 
@@ -37,9 +38,9 @@ app.onError((err, c) => {
 app.use("*", async (c, next) => {
   const path = c.req.path;
   const db = drizzle(c.env.D1DATA);
-	c.set('db', db);
+  c.set('db', db);
   const auth = initializeAuth(c.env);
-	c.set('auth', auth);
+  c.set('auth', auth);
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
   if (!session) {
@@ -63,29 +64,24 @@ app.get('/', (c) => {
   )
 })
 
+app.get('/login', (c) => {
+  // const path = c.req.path;
+  return c.html(
+    <Layout><Login /></Layout>
+  )
+})
+
 app.route('/admin', adminRouter);
 
 /**
  *  登陆授权相关
  */
 
-app.use(
-  '/api/auth/**',
-  cors({
-    origin: 'http://localhost:3001',
-    allowHeaders: ['Content-Type', 'Authorization'],
-    allowMethods: ['POST', 'GET', 'OPTIONS'],
-    exposeHeaders: ['Content-Length'],
-    maxAge: 600,
-    credentials: true,
-  }),
-  (c) => {
-    const auth = c.get('auth');
-    const authToken = auth.handler(c.req.raw);
-    console.log('authToken', authToken);
-    return authToken;
-  }
-);
+app.on(["POST", "GET"], "/api/auth/**", (c) => {
+  const auth = c.get('auth');
+  const authToken = auth.handler(c.req.raw);
+  return authToken;
+});
 
 /**
  *  数据相关
